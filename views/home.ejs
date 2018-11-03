@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Home</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var io = io('127.0.0.1:3000');
+        
+        $(document).ready(() => {
+            $("#loginForm").show();
+            $("#chatForm").hide();
+        })
+    </script>
+    <style>
+        body {
+            display: flex;
+            flex-direction:column;
+            justify-content: center;
+            align-content: center;
+        }
+
+        #left{
+            float:left;
+            width: 30%;
+            background-color:#fff;
+            min-height: 400px; 
+        }
+        #right{
+            float:right;
+            width: 70%;
+            background-color:#eee; 
+            min-height: 400px; 
+            position: relative;
+        }
+
+        #header{
+            position: absolute;
+            top: 0;
+            width: 100%;
+        }
+
+        #footer{
+            position: absolute;
+            bottom: 0;
+        }
+
+        #greating{
+            width: 70%;
+            float: left;
+        }
+        #chat-content{
+            position: relative;
+            top: 20px;
+        }
+        #logout-btn{
+            width: 30%;
+            float:right;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loginForm">
+        <h3>What's your name?</h3>
+        <input type="text">
+        <button>Register</button>
+    </div>
+    <div id="chatForm">
+        <div id="left">
+            <h2>User online</h2>
+            <ul>
+                <li>PPBra</li>
+                <li>hehe</li>
+                <li>hehe</li>
+                <li>hehe</li>
+            </ul>
+        </div>
+        <div id="right">
+            <div id="header">
+                <div id="greating">Heloo PPBra</div>
+                <input  value="logout"id="logout-btn" type="button"/>     </div>
+            <div id="chat-content"></div>
+            <div id="footer">
+                <input id="input-message" type="text">
+                <input type="button" value="send" id="send-btn">
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
