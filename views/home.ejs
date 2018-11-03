@@ -6,14 +6,6 @@
     <title>Home</title>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var io = io('127.0.0.1:3000');
-        
-        $(document).ready(() => {
-            $("#loginForm").show();
-            $("#chatForm").hide();
-        })
-    </script>
     <style>
         body {
             display: flex;
@@ -65,23 +57,21 @@
 <body>
     <div id="loginForm">
         <h3>What's your name?</h3>
-        <input type="text">
-        <button>Register</button>
+        <input type="text" id="userName">
+        <button id="registerButton">Register</button>
     </div>
     <div id="chatForm">
         <div id="left">
             <h2>User online</h2>
-            <ul>
-                <li>PPBra</li>
-                <li>hehe</li>
-                <li>hehe</li>
-                <li>hehe</li>
+            <ul id="user-online">
+
             </ul>
         </div>
         <div id="right">
             <div id="header">
                 <div id="greating">Heloo PPBra</div>
-                <input  value="logout"id="logout-btn" type="button"/>     </div>
+                <input value="logout" id="logout-btn" type="button" />
+            </div>
             <div id="chat-content"></div>
             <div id="footer">
                 <input id="input-message" type="text">
@@ -89,6 +79,66 @@
             </div>
         </div>
     </div>
+    <script>
+        var user={};
+        var users=[];
+        $(document).ready(() => {
+            $("#loginForm").show();
+            $("#chatForm").hide();
+        });
+        var socket = io('127.0.0.1:3000');
+        socket.on("register-false", () => {
+            $(document).ready(() => {
+                localStorage.setItem("isLogin", { value: false });
+                alert("Da co nguoi dung ten nay!");
+            })
+        })
+        socket.on('register-success', (data) => {
+            localStorage.setItem("isLogin", { value: true });
+            console.log(data.users, data.isYour);
+            user = data.isYour;
+            users = data.users;
+
+            users.forEach(element => {
+                if (element.id !== user.id) {
+                    $("#user-online").append(`<li>${element.userName}</li>`);
+                }
+            });
+            $("#greating").text(user.userName);
+            $("#loginForm").hide();
+            $("#chatForm").show();
+        })
+
+        socket.on("new-user", (e) => {
+            console.log("ok");
+            if (e.id !== user.id) {
+                $("#user-online").append(`<li>${e.userName}</li>`);
+            }
+        })
+
+
+        socket.on('log-out', (data) => {
+            if (data.indexOf(user) >= 0) {
+                $("#loginForm").show();
+                $("#chatForm").hide();
+            } else {
+                $("#user-online").empty();
+                data.forEach(e => {
+                    $("#user-online").append(`<li>${e.userName}</li>`);
+                })
+            }
+        })
+        
+        $("#registerButton").click(() => {
+            const value = $("#userName").val();
+            socket.emit("client-send-userName", value);
+        })
+        
+        $("#logout-btn").click(() => {
+            socket.emit("log-out", user);
+        })
+
+    </script>
 </body>
 
 </html>
