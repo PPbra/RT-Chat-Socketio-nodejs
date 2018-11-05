@@ -1,5 +1,8 @@
 const express = require('express');
-var app = express();
+const app = express();
+const uniqid = require('uniqid');
+
+
 app.use(express.static('./public'));app.set('views','./views');
 app.set("view engine",'ejs');
 
@@ -12,30 +15,13 @@ app.get('/' , (req , res)=>{
     res.render("home.ejs");
 })
 
-const users = [
-    {
-        id:1,
-        userName:"PPbra"
-    },
-    {
-        id:2,
-        userName:"Phuongngo"
-    },
-    {
-        id:3,
-        userName:"Trawnnu"
-    },
-    {
-        id:4,
-        userName:"HELO"
-    },
-] 
+const users = [] 
 
 
 io.on("connection",(socket)=>{
-    console.log("hello :V");
+
     socket.on("client-send-userName",(data)=>{
-        console.log(data);
+
        const isContain =  users.find((e)=>{
             return e.userName===data;
         })
@@ -45,7 +31,7 @@ io.on("connection",(socket)=>{
         }
         else{
             const newUser = {
-                id:users.length+1,
+                id:i=uniqid('id-'),
                 userName:data
             };
             users.push(newUser);
@@ -55,7 +41,9 @@ io.on("connection",(socket)=>{
     });
     socket.on("log-out",(user)=>{
         users.splice(users.indexOf(user),1);
-        console.log(users);
         io.emit("log-out" ,users);
+    });
+    socket.on("send-message",(data)=>{
+        socket.broadcast.emit("recieve-message",data);
     })
 })

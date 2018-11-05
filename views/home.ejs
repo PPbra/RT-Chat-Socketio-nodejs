@@ -80,13 +80,43 @@
         </div>
     </div>
     <script>
-        var user={};
-        var users=[];
         $(document).ready(() => {
             $("#loginForm").show();
             $("#chatForm").hide();
         });
+        var user = {};
+        var users = [];
+        const message = [];
         var socket = io('127.0.0.1:3000');
+        $("#send-btn").click(()=>{
+           const tmp =  $('#input-message').val();
+           const data = {
+               user:user,
+               message:tmp
+           }
+
+           $("#chat-content").append(
+                `<div>
+                    <span>${data.user.userName}:</span>
+                    <span>${data.message}</span>    
+                </div>`
+            )
+
+            $('#input-message').val('');
+
+           socket.emit("send-message",data);
+        })
+
+        socket.on("recieve-message",(data)=>{
+
+            $("#chat-content").append(
+                `<div>
+                    <span>${data.user.userName}:</span>
+                    <span>${data.message}</span>    
+                </div>`
+            )
+        })
+
         socket.on("register-false", () => {
             $(document).ready(() => {
                 localStorage.setItem("isLogin", { value: false });
@@ -95,7 +125,7 @@
         })
         socket.on('register-success', (data) => {
             localStorage.setItem("isLogin", { value: true });
-            console.log(data.users, data.isYour);
+
             user = data.isYour;
             users = data.users;
 
@@ -110,7 +140,7 @@
         })
 
         socket.on("new-user", (e) => {
-            console.log("ok");
+            
             if (e.id !== user.id) {
                 $("#user-online").append(`<li>${e.userName}</li>`);
             }
@@ -118,25 +148,27 @@
 
 
         socket.on('log-out', (data) => {
-            if (data.indexOf(user) >= 0) {
-                $("#loginForm").show();
-                $("#chatForm").hide();
-            } else {
-                $("#user-online").empty();
-                data.forEach(e => {
-                    $("#user-online").append(`<li>${e.userName}</li>`);
-                })
-            }
+
+            $("#user-online").empty();
+            data.forEach(e => {
+                $("#user-online").append(`<li>${e.userName}</li>`);
+            })
+
         })
-        
+
+
+
         $("#registerButton").click(() => {
             const value = $("#userName").val();
             socket.emit("client-send-userName", value);
         })
-        
+
         $("#logout-btn").click(() => {
             socket.emit("log-out", user);
-        })
+            $("#loginForm").show();
+            $("#chatForm").hide();
+        });
+
 
     </script>
 </body>
